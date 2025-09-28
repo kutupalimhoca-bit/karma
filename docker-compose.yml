@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  coturn:
+    image: instrumentisto/coturn
+    restart: unless-stopped
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+    environment:
+      - REALM=example.com
+      - LISTEN_ON_PUBLIC_IP=1
+      - EXTERNAL_IP=
+      - ALLOWED_PEERS=0.0.0.0/0
+    command: ["--no-cli", "--verbose", "--lt-cred-mech", "--realm=example.com", "--user=turnuser:turnpass", "--static-auth-secret=turnsecret"]
+
+volumes:
+  mongo-data:
